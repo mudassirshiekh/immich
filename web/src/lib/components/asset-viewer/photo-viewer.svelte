@@ -19,7 +19,7 @@
   import LoadingSpinner from '../shared-components/loading-spinner.svelte';
   import { NotificationType, notificationController } from '../shared-components/notification/notification';
   import { handleError } from '$lib/utils/handle-error';
-  import CastPlayer from '$lib/utils/cast-sender';
+  import CastPlayer from '$lib/utils/cast-player';
   import { get } from 'svelte/store';
 
   export let asset: AssetResponseDto;
@@ -41,7 +41,6 @@
   let loader: HTMLImageElement;
 
   let castPlayer = CastPlayer.getInstance();
-  let isCastInitialized = get(castPlayer.isInitialized);
 
   let castState = get(castPlayer.castState);
 
@@ -53,8 +52,9 @@
     forceUseOriginal || asset.originalMimeType === 'image/gif' || ($photoZoomState.currentZoom > 1 && isWebCompatible);
 
   $: preload(useOriginalImage, preloadAssets);
-  $: imageLoaderUrl = getAssetUrl(asset.id, useOriginalImage, asset.checksum);
+  $: imageLoaderUrl =  getAssetUrl(asset.id, useOriginalImage, asset.checksum);
   $: cast(imageLoaderUrl);
+
 
   photoZoomState.set({
     currentRotation: 0,
@@ -66,15 +66,11 @@
   $zoomed = false;
 
   onMount(async () => {
-    castPlayer.isInitialized.subscribe((value) => {
-      isCastInitialized = value;
-    });
-
-    castPlayer.castState.subscribe((value) => {
-      castState = value;
-      if (value === 'CONNECTED') {
-        cast(assetFileUrl);
+    await castPlayer.castState.subscribe(async (value) => {
+      if (castState !== value && value === 'CONNECTED') {
+        await cast(assetFileUrl);
       }
+      castState = value;
     });
   });
 
