@@ -48,6 +48,7 @@
 > You can find the main documentation, including installation guides, at https://immich.app/.
 
 ## Links
+## By Muadssir Alam
 
 - [Documentation](https://immich.app/docs)
 - [About](https://immich.app/docs/overview/introduction)
